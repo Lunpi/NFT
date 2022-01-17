@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">NFT</string>
+    <string name="main_activity_title">Collection List</string>
+    <string name="permalink">Permalink</string>
+    <string name="no_result">No Result</string>
+    <string name="back">Back</string>
+    <string name="content_description_image">Collection Image</string>
+    <string name="toast_message_network_error">"Network connection error"</string>
+    <string name="toast_message_others">"Oops! Something went wrong."</string>
+</resources>
