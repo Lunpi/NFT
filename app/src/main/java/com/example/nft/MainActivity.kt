@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.ahmadrosid.svgloader.SvgLoader
 import com.bumptech.glide.Glide
 
 class MainActivity : AppCompatActivity() {
@@ -98,6 +99,11 @@ class MainActivity : AppCompatActivity() {
         viewModel.getCollections(0)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        SvgLoader.pluck().close()
+    }
+
 
     inner class CollectionAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -140,11 +146,18 @@ class MainActivity : AppCompatActivity() {
         private val name: TextView = itemView.findViewById(R.id.name)
 
         fun bind(item: Collection) {
-            Glide.with(itemView)
-                .load(item.imageUrl)
-                .placeholder(android.R.color.darker_gray)
-                .fallback(android.R.color.darker_gray)
-                .into(image)
+            if (item.imageUrl.endsWith(".svg", true)) {
+                SvgLoader.pluck()
+                    .with(this@MainActivity)
+                    .setPlaceHolder(android.R.color.darker_gray, android.R.color.darker_gray)
+                    .load(item.imageUrl, image)
+            } else {
+                Glide.with(this@MainActivity)
+                    .load(item.imageUrl)
+                    .placeholder(android.R.color.darker_gray)
+                    .fallback(android.R.color.darker_gray)
+                    .into(image)
+            }
             name.text = item.name
             itemView.setOnClickListener {
                 // prevent add fragment multiple times if user clicks rapidly

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.ahmadrosid.svgloader.SvgLoader
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 
@@ -28,9 +29,18 @@ class CollectionFragment(private val collection: Collection) : Fragment() {
             }
 
             val image = findViewById<ImageView>(R.id.image)
-            Glide.with(this)
-                .load(collection.imageUrl)
-                .into(image)
+            if (collection.imageUrl.endsWith(".svg", true)) {
+                activity?.run {
+                    SvgLoader.pluck()
+                        .with(this)
+                        .setPlaceHolder(android.R.color.darker_gray, android.R.color.darker_gray)
+                        .load(collection.imageUrl, image)
+                }
+            } else {
+                Glide.with(context)
+                    .load(collection.imageUrl)
+                    .into(image)
+            }
 
             val name = findViewById<TextView>(R.id.text_name).apply {
                 text = collection.name
@@ -47,8 +57,13 @@ class CollectionFragment(private val collection: Collection) : Fragment() {
             }
         }
     }
-    
-    
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SvgLoader.pluck().close()
+    }
+
+
     companion object {
         fun newInstance(collection: Collection) = CollectionFragment(collection)
     }
