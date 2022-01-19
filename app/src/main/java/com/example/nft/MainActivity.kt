@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
             adapter = collectionAdapter
             layoutManager = GridLayoutManager(this@MainActivity, 2).apply {
                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                    override fun getSpanSize(position: Int) = when ((adapter as CollectionAdapter).getItemViewType(position)) {
+                    override fun getSpanSize(position: Int) = when ((adapter as CollectionAdapter).getItemViewType(position.coerceAtMost(itemCount))) {
                         ITEM_TYPE_PROGRESS_BAR -> 2
                         else -> 1
                     }
@@ -38,8 +38,10 @@ class MainActivity : AppCompatActivity() {
 
         val refreshContainer = findViewById<SwipeRefreshLayout>(R.id.refresh_container).apply {
             setOnRefreshListener {
-                isRefreshing = true
-                viewModel.getCollections(collectionAdapter.itemCount)
+                if (viewModel.progressing.value == false) {
+                    isRefreshing = true
+                    viewModel.getCollections(collectionAdapter.itemCount)
+                }
             }
         }
 
@@ -50,7 +52,6 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         viewModel.collections.observe(this) { collections ->
-            noResult.visibility = if (collections.isEmpty()) View.VISIBLE else View.GONE
             collectionAdapter.apply {
                 items.addAll(collections)
                 collectionList.post {
@@ -60,6 +61,7 @@ class MainActivity : AppCompatActivity() {
                         notifyItemRangeInserted(itemCount, collections.size)
                     }
                 }
+                noResult.visibility = if (itemCount == 0) View.VISIBLE else View.GONE
             }
             refreshContainer.isRefreshing = false
         }
