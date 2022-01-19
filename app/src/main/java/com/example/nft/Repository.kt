@@ -1,6 +1,7 @@
 package com.example.nft
 
 import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -10,9 +11,17 @@ import java.net.UnknownHostException
 
 class Repository {
 
+    private val httpClient = OkHttpClient.Builder().apply {
+        addInterceptor { chain ->
+            val request = chain.request().newBuilder().addHeader("X-API-KEY", "5b294e9193d240e39eefc5e6e551ce83").build()
+            chain.proceed(request)
+        }
+    }
+
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://api.opensea.io/api/")
         .addConverterFactory(GsonConverterFactory.create())
+        .client(httpClient.build())
         .build()
 
     private val service = retrofit.create(NFTApiService::class.java)
