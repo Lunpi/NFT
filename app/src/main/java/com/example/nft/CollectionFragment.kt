@@ -60,7 +60,9 @@ class CollectionFragment(private val collection: Collection) : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        SvgLoader.pluck().close()
+        activity?.run {
+            SvgLoader.pluck().with(this).close()
+        }
     }
 
 
